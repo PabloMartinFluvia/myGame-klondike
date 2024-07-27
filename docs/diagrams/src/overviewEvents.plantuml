@@ -1,0 +1,85 @@
+@startuml
+
+class Klondike
+class Player
+
+class Stock
+class Waste
+class Tableau
+class Foundation
+
+class Card
+
+Klondike *-down-> Player
+Player .down.> "4 x 13 .. N" Movement
+
+abstract class Movement{
+    cardsUsed = 1
+}
+
+Movement -down-> OriginPile
+Movement -down-> TargetPile
+Movement -down-> "1..24" Card
+
+abstract class OriginPile{
+    origin: Pile
+}
+
+abstract class TargetPile{
+    target: Pile
+}
+
+abstract class FromWaste
+OriginPile <|-down- FromWaste
+FromWaste --down--> Waste : origin
+
+abstract class ToFoundation
+TargetPile <|-down- ToFoundation
+ToFoundation -down-> Foundation : target
+
+abstract class FromTableau
+OriginPile <|-down- FromTableau
+FromTableau -down-> Tableau : origin
+
+abstract class ToTableau
+TargetPile <|-down- ToTableau
+ToTableau --down--> Tableau : target
+
+class StockToWaste
+OriginPile <|-down- StockToWaste
+TargetPile <|-down- StockToWaste
+StockToWaste -down-> Stock : origin
+StockToWaste -down-> Waste : target
+
+class WasteToStock{
+    cardsUsed = wasteSize
+}
+FromWaste <|-down- WasteToStock
+TargetPile <|-down- WasteToStock
+WasteToStock -down-> Stock : target
+
+class WasteToTableau
+FromWaste <|-down- WasteToTableau
+ToTableau <|-down- WasteToTableau
+
+class WasteToFoundation
+FromWaste <|-down- WasteToFoundation
+ToFoundation <|-down- WasteToFoundation
+
+class TableauToFoundation
+ToFoundation <|-down- TableauToFoundation
+FromTableau <|-down- TableauToFoundation
+
+class FoundationToTableau
+FoundationToTableau -down-> Foundation : origin
+ToTableau <|-down- FoundationToTableau
+
+
+class TableauToTableau{
+    cardsUsed = 1..13
+}
+FromTableau <|-down- TableauToTableau
+ToTableau <|-down- TableauToTableau
+
+@enduml
+

@@ -1,0 +1,47 @@
+@startuml
+
+object klondike
+
+object deck
+
+object waste
+
+object tableauX
+
+object "foundationHeart :Foundation" as foundation1
+
+object ":Card" as cA{
+    displayed = true
+    suite = HEART
+    rank = A
+}
+object ":Card" as cK{
+    displayed = true
+    suite = HEART
+    rank = King
+}
+
+'klondike dependencies'
+klondike *-down-> deck
+klondike *-down-> waste
+klondike *-down-> tableauX
+note on link
+Idem all 7 tableau
+end note
+
+klondike *-down-> foundation1
+note on link
+Same schema all 4 foundations
+end note
+
+foundation1 o-down-> cK
+foundation1 o-down-> cA
+
+note as cardNote
+All suite's cards.
+Order: Ace in bottom to King on top
+end note
+cA..cardNote
+cK..cardNote
+
+@enduml

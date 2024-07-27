@@ -1,0 +1,31 @@
+@startuml
+
+state " " as playerChoice : player can chooses which path (if guard = true)
+state ONE_CARD_MOVEMENT : see diagram
+state FROM_TABLEAU_MANY_CARDS_MOVEMENT : see diagram
+state WASTE_TO_STOCK_MOVEMENT : see diagram
+
+state winEvaluation <<choice>>
+
+[*]--> DECK_SUFFLED : shuffle
+DECK_SUFFLED --> IN_GAME : deal
+IN_GAME --down--> playerChoice
+playerChoice --> [*] : player chooses resign
+playerChoice -down-> ONE_CARD_MOVEMENT : [originPile.size >= 1]
+note top on link
+for choose move <b>anyPile.</b>topCard
+end note
+playerChoice -down-> FROM_TABLEAU_MANY_CARDS_MOVEMENT : [originTableau.displayedCards.size > 1]
+note top on link
+for choose move <b>anyTableau.many</b>TopDisplayedCards
+end note
+playerChoice -right-> WASTE_TO_STOCK_MOVEMENT : [stock.isEmpty AND waste.size > 0]
+note top on link
+for choose restore stock
+end note
+WASTE_TO_STOCK_MOVEMENT -up-> IN_GAME
+ONE_CARD_MOVEMENT --> winEvaluation
+winEvaluation --> [*] : [all cards in foundations]
+winEvaluation -up-> IN_GAME
+FROM_TABLEAU_MANY_CARDS_MOVEMENT -up-> IN_GAME
+@enduml

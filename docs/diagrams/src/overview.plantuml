@@ -1,0 +1,85 @@
+@startuml
+
+class Klondike
+class Player
+class Deck
+
+abstract class Pile{
+    {static} maxCards: num
+}
+
+class Stock{
+    {static} maxCards = 24
+}
+class Waste{
+    {static} maxCards = 24
+}
+class Tableau{
+    {static} maxCards = 19
+}
+class Foundation{
+    {static} maxCards = 13
+}
+
+class Card{
+    displayed: boolean
+}
+
+enum Rank{
+    A
+    2
+    ...
+    QUEEN
+    KING
+}
+
+abstract class Suite
+class Spade{
+    Color = BLACK
+}
+class Heart{
+    Color = RED
+}
+class Club{
+    Color = BLACK
+}
+class Diamond{
+    Color = RED
+}
+
+enum Color{
+    RED
+    BLACK
+}
+
+Klondike *-down-> Deck
+Klondike *-down-> Stock
+Klondike *-down-> Waste
+Klondike *-down-> "7" Tableau
+Klondike *-down-> "4" Foundation
+
+Klondike *-down-> Player
+
+Player .-down.-> Card
+Player .-down.-> Pile
+
+Deck *-down-> "13 x 4" Card
+
+Card -down-> Suite
+Card -down-> Rank
+
+Suite <|-down- Spade
+Suite <|-down- Heart
+Suite <|-down- Club
+Suite <|-down- Diamond
+Suite -down-> Color
+
+Pile o--down--> "*" Card
+
+Pile <|-down- Stock
+Pile <|-down- Waste
+Pile <|-down- Tableau
+Pile <|-down- Foundation
+
+
+@enduml

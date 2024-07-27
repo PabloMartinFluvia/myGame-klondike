@@ -1,0 +1,26 @@
+@startuml
+
+state " " as cardsSelected
+note right
+player can't revoke movement
+end note
+
+
+[*] --> cardsSelected : player removes <b>from waste</b>.allCards
+cardsSelected --> CARDS_MOVED : player moves all cards <b>to waste</b>
+'to avoid 2 object diagrams:'
+note right
+stock.all.visibility.isDisplayed = false
+order is inverse than waste:
+    new.stock.top = old.waste.bottom
+    ...
+    new.stock.bottom = old.waste.top
+end note
+
+CARDS_MOVED --> [*]
+
+note as Precondition
+Precondition:
+stock.isEmpty AND waste.size > 0
+end note
+@enduml

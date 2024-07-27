@@ -1,0 +1,72 @@
+@startuml
+
+state TOP_CARD_SELECTED <<choice>>
+state " " as STOCK_TOP_CARD_REMOVED
+state CARD_MOVED
+note bottom
+targetPile.topCard = card
+card.visibility.isDisplayed = true
+end note
+state CARD_NOT_MOVED
+note bottom
+originPile.top = card
+card.visibility.isChanged = false
+end note
+state " " as OTHER_TOP_CARD_REMOVED
+state targetPileChoice <<choice>>
+state " " as TO_FOUNDATION
+state TO_FOUNDATION_IS_VALID <<choice>>
+state " " as TO_TABLEAU
+state TO_TABLEAU_IS_VALID <<choice>>
+state hiddenCardEvaluation <<choice>>
+state displayCardTriggered <<choice>>
+
+[*] --> TOP_CARD_SELECTED : player removes card <b>from anypile</b>.topCard
+TOP_CARD_SELECTED -left-> STOCK_TOP_CARD_REMOVED
+STOCK_TOP_CARD_REMOVED --> MOVEMENT_CANCELED
+MOVEMENT_CANCELED --> CARD_NOT_MOVED : player return card to originPile.top
+CARD_NOT_MOVED --> [*]
+STOCK_TOP_CARD_REMOVED --> CARD_MOVED : player moves card <b>to waste</b>.top
+
+TOP_CARD_SELECTED --> OTHER_TOP_CARD_REMOVED : [originPile ! = stock]
+
+OTHER_TOP_CARD_REMOVED --> targetPileChoice : player chooses target pile (distinct to origin pile)
+targetPileChoice --> TO_FOUNDATION : [targetPile = one foundation]
+targetPileChoice --> TO_TABLEAU : [targetPile = one tableau]
+targetPileChoice --> MOVEMENT_CANCELED
+
+TO_FOUNDATION --> TO_FOUNDATION_IS_VALID : [see note]
+note right on link
+(targetFoundation.isEmpty & card.rank= ACE)
+OR
+(!targetFoundation.isEmpty
+    & targetFoundation.top.suite = card.suite
+    & targetFoundation.top.rank = card.rank - 1)
+end note
+TO_FOUNDATION -up-> MOVEMENT_CANCELED
+TO_FOUNDATION_IS_VALID --> CARD_MOVED : player moves card <b>to foundation</b>.top
+
+TO_TABLEAU --> TO_TABLEAU_IS_VALID : [see note]
+note right on link
+(targetTableau.isEmpty & card.rank= KING)
+OR
+(!targetTableau.isEmpty
+    & targetTableau.top.color != card.color
+    & targetTableau.top.rank = card.rank + 1)
+end note
+TO_TABLEAU -up-> MOVEMENT_CANCELED
+TO_TABLEAU_IS_VALID --> CARD_MOVED : player moves card <b>to tableau</b>.top
+
+
+CARD_MOVED --> hiddenCardEvaluation
+hiddenCardEvaluation --> [*]
+hiddenCardEvaluation --> displayCardTriggered : [originPile = tableau & !originTableau.top.visibility.isDisplayed]
+displayCardTriggered --> [*] : originTableau.top changes visibility to displayed true
+
+
+
+note as Precondition
+Precondition:
+originPile.size >= 1
+end note
+@enduml

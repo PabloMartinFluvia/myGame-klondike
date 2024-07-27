@@ -1,0 +1,68 @@
+@startuml
+
+note as precondition
+Precondition:
+originTableau.displayedCards.size > 1
+end note
+
+state " " as CARDS_REMOVED
+note right
+order of removed cards don't change:
+    cardsRemoved.top = originTableau.top = originTableau.topDisplayeds[1]
+    ...
+    cardsRemoved.bottom = originTableau.topDisplayeds[N]
+end note
+
+state targetPileChoice <<choice>>
+state " " as targetTableauSelected
+state toTableauIsValid <<choice>>
+state CARDS_MOVED
+note right
+moved cards are top in target Tableau:
+cards.top = targetTableau.top = targetTableau.topDisplayeds[1]
+    ...
+cards.bottom = targetTableau.topDisplayeds[N]
+end note
+
+state hiddenCardEvaluation <<choice>>
+state " " as displayCardTriggered
+
+state CARDS_NOT_MOVED
+note bottom
+order like before removed:
+    cardsRemoved.top = originTableau.top = originTableau.topDisplayeds[1]
+    ...
+    cardsRemoved.bottom = originTableau.topDisplayeds[N]
+end note
+
+
+[*] --> CARDS_REMOVED : player removes <b>from originTableau</b> top N displayed cards
+note bottom on link
+N > 1, otherwise it would
+be one card movement.
+end note
+
+CARDS_REMOVED --> targetPileChoice : player chooses target pile
+targetPileChoice --> targetTableauSelected : [targetPile = one tableau]
+targetPileChoice --> MOVEMENT_CANCELED
+targetTableauSelected --> toTableauIsValid : [see note]
+note right on link
+(targetTableau.isEmpty & cards.bottom.rank= KING)
+OR
+(!targetTableau.isEmpty
+    & targetTableau.top.color != cards.bottom.color
+    & targetTableau.top.rank = cards.bottom.rank + 1)
+end note
+targetTableauSelected -left-> MOVEMENT_CANCELED
+toTableauIsValid --> CARDS_MOVED : player moves cards <b>to targetTableau</b>.top
+
+CARDS_MOVED --> hiddenCardEvaluation
+hiddenCardEvaluation --> [*]
+hiddenCardEvaluation --> displayCardTriggered : [!originTableau.top.visibility.isDisplayed]
+displayCardTriggered --> [*] : originTableau.top changes visibility to displayed
+
+
+MOVEMENT_CANCELED --> CARDS_NOT_MOVED : player return cards to originTableau.top
+CARDS_NOT_MOVED --> [*]
+
+@enduml

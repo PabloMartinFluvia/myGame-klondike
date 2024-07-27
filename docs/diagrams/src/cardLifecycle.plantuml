@@ -1,0 +1,51 @@
+@startuml
+note  as PW
+PW: player chooses WASTE_TO_STOCK_MOVEMENT
+end note
+note bottom
+P1M: player chooses ONE_CARD_MOVEMENT
+originPile is the pile where is the card
+AND reaches CARD_MOVED state (see diagram)
+end note
+note bottom
+P2M: player chooses FROM_TABLEAU_MANY_CARDS_MOVEMENT
+AND originPile.topSelectedDisplayedCards.includes(card)
+AND reaches CARDS_MOVED state (see diagram)
+end note
+
+
+[*] --> IN_DECK
+state IN_DECK
+state dealChoice <<choice>>
+IN_DECK --> dealChoice
+dealChoice --> IN_ONE_TABLEAU : [card in 28 first]
+dealChoice --> IN_STOCK
+
+state IN_STOCK
+IN_STOCK --> IN_WASTE : [card = stock.top & P1M]
+IN_STOCK --> [*] : [player.isResigned]
+
+state IN_WASTE
+IN_WASTE -up-> IN_STOCK : [stock.isEmpty & PW]
+IN_WASTE --> [*] : [player.isResigned]
+state wasteToTargetChoice <<choice>>
+IN_WASTE --> wasteToTargetChoice : [card = waste.top & P1M]
+wasteToTargetChoice --> IN_ONE_TABLEAU : [targetPile was one tableau]
+wasteToTargetChoice --> IN_ONE_FOUNDATION : [targetPile was one foundation]
+
+state IN_ONE_FOUNDATION
+IN_ONE_FOUNDATION --> [*] : [foundations.contains(allCards)  | player.isResigned]
+state foundationToTargetChoice <<choice>>
+IN_ONE_FOUNDATION --> foundationToTargetChoice : [card = foundation.top & P1M]
+foundationToTargetChoice --> IN_ONE_FOUNDATION : [targetPile was other foundation]
+foundationToTargetChoice --> IN_ONE_TABLEAU : [targetPile was one tableau]
+
+
+state IN_ONE_TABLEAU
+IN_ONE_TABLEAU --> [*] : [player.isResigned]
+state tableauToTargetOneChoice <<choice>>
+IN_ONE_TABLEAU --> tableauToTargetOneChoice : [card = tableau.top & P1M]
+tableauToTargetOneChoice --> IN_ONE_FOUNDATION : [targetPile was one foundation]
+tableauToTargetOneChoice --> IN_ONE_TABLEAU : [targetPile was other tableau]
+IN_ONE_TABLEAU -up-> IN_ONE_TABLEAU : [tableau.diplayedCards.size > 1 & P2M]
+@enduml
